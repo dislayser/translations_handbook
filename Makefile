@@ -17,3 +17,10 @@ docker-build:
 
 docker-pull:
 	docker compose pull
+
+venv:
+	python3 -m venv .venv
+	. .venv/bin/activate
+
+pip-install:
+	pip install -r requirements.txt

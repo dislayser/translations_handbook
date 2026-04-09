@@ -100,27 +100,27 @@ def create_translation(translation: Translation) -> Translation:
     """Create a new translation"""
     client = check_redis()
     
-    key = f"trans:{translation.language_id}:{translation.key}"
+    key = f"trans:{translation.language_code}:{translation.key}"
     data = _prepare_for_storage(translation)
     
     client.set_json(key, data)
-    logger.info(f"Created translation: {translation.key} for {translation.language_id}")
+    logger.info(f"Created translation: {translation.key} for {translation.language_code}")
     return translation
 
-def get_translation(key: str, language_id: str) -> Optional[Translation]:
+def get_translation(key: str, language_code: str) -> Optional[Translation]:
     """Get translation by key and language"""
     client = check_redis()
-    redis_key = f"trans:{language_id}:{key}"
+    redis_key = f"trans:{language_code}:{key}"
     data = client.get_json(redis_key)
     if data:
         data = _restore_from_storage(data)
         return Translation(**data)
     return None
 
-def get_translations_by_language(language_id: str) -> List[Translation]:
+def get_translations_by_language(language_code: str) -> List[Translation]:
     """Get all translations for a language"""
     client = check_redis()
-    pattern = f"trans:{language_id}:*"
+    pattern = f"trans:{language_code}:*"
     keys = client.get_all_keys(pattern)
     translations = []
     for key in keys:
@@ -142,9 +142,9 @@ def get_all_translations() -> List[Translation]:
             translations.append(Translation(**data))
     return translations
 
-def update_translation(key: str, language_id: str, value: str) -> Optional[Translation]:
+def update_translation(key: str, language_code: str, value: str) -> Optional[Translation]:
     """Update translation value"""
-    translation = get_translation(key, language_id)
+    translation = get_translation(key, language_code)
     if not translation:
         return None
     
@@ -152,25 +152,25 @@ def update_translation(key: str, language_id: str, value: str) -> Optional[Trans
     translation.updated_at = datetime.now()
     
     client = check_redis()
-    redis_key = f"trans:{language_id}:{key}"
+    redis_key = f"trans:{language_code}:{key}"
     data = _prepare_for_storage(translation)
     
     client.set_json(redis_key, data)
-    logger.info(f"Updated translation: {key} for {language_id}")
+    logger.info(f"Updated translation: {key} for {language_code}")
     return translation
 
-def delete_translation(key: str, language_id: str) -> bool:
+def delete_translation(key: str, language_code: str) -> bool:
     """Delete translation"""
     client = check_redis()
-    redis_key = f"trans:{language_id}:{key}"
+    redis_key = f"trans:{language_code}:{key}"
     if not client.exists(redis_key):
         return False
     
     client.delete(redis_key)
-    logger.info(f"Deleted translation: {key} for {language_id}")
+    logger.info(f"Deleted translation: {key} for {language_code}")
     return True
 
-def get_translations_map(language_id: str) -> Dict[str, str]:
+def get_translations_map(language_code: str) -> Dict[str, str]:
     """Get translations as key-value map for a language"""
-    translations = get_translations_by_language(language_id)
+    translations = get_translations_by_language(language_code)
     return {t.key: t.value for t in translations}

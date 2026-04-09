@@ -11,14 +11,14 @@ class Language(BaseModel):
 class Translation(BaseModel):
     key: str = Field(..., min_length=1, max_length=200)
     value: str
-    language_id: str  # language code
+    language_code: str  # language code
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
 class TranslationCreate(BaseModel):
     key: str
     value: str
-    language_id: str
+    language_code: str
 
 class LanguageCreate(BaseModel):
     code: str

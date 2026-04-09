@@ -65,7 +65,7 @@ async def get_specific_translation(language_code: str, key: str):
     return TranslationResponse(
         key=translation.key,
         value=translation.value,
-        language_id=translation.language_id
+        language_code=translation.language_code
     )
 
 @router.get("/all-translations", response_model=Dict[str, Dict[str, str]])

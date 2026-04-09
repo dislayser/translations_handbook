@@ -63,63 +63,63 @@ async def delete_language_by_code(code: str):
 @router.post("/translations", response_model=TranslationResponse, status_code=status.HTTP_201_CREATED)
 async def create_new_translation(translation: TranslationCreate):
     """Create a new translation"""
-    language = get_language(translation.language_id)
+    language = get_language(translation.language_code)
     if not language:
         raise HTTPException(status_code=404, detail="Language not found")
     
-    existing = get_translation(translation.key, translation.language_id)
+    existing = get_translation(translation.key, translation.language_code)
     if existing:
         raise HTTPException(status_code=400, detail="Translation already exists")
     
     new_trans = Translation(
         key=translation.key,
         value=translation.value,
-        language_id=translation.language_id
+        language_code=translation.language_code
     )
     created = create_translation(new_trans)
     
     return TranslationResponse(
         key=created.key,
         value=created.value,
-        language_id=created.language_id
+        language_code=created.language_code
     )
 
 @router.get("/translations", response_model=TranslationListResponse)
-async def list_translations(language_id: str = None):
+async def list_translations(language_code: str = None):
     """Get all translations, optionally filtered by language"""
-    if language_id:
-        translations = get_translations_by_language(language_id)
+    if language_code:
+        translations = get_translations_by_language(language_code)
     else:
         translations = get_all_translations()
     
     return TranslationListResponse(
         translations=[TranslationResponse(
-            key=t.key, value=t.value, language_id=t.language_id
+            key=t.key, value=t.value, language_code=t.language_code
         ) for t in translations],
         total=len(translations)
     )
 
-@router.put("/translations/{language_id}/{key}", response_model=TranslationResponse)
-async def update_translation_by_key(language_id: str, key: str, value: str):
+@router.put("/translations/{language_code}/{key}", response_model=TranslationResponse)
+async def update_translation_by_key(language_code: str, key: str, value: str):
     """Update a translation"""
-    updated = update_translation(key, language_id, value)
+    updated = update_translation(key, language_code, value)
     if not updated:
         raise HTTPException(status_code=404, detail="Translation not found")
     
     return TranslationResponse(
         key=updated.key,
         value=updated.value,
-        language_id=updated.language_id
+        language_code=updated.language_code
     )
 
-@router.delete("/translations/{language_id}/{key}", response_model=MessageResponse)
-async def delete_translation_by_key(language_id: str, key: str):
+@router.delete("/translations/{language_code}/{key}", response_model=MessageResponse)
+async def delete_translation_by_key(language_code: str, key: str):
     """Delete a translation"""
-    deleted = delete_translation(key, language_id)
+    deleted = delete_translation(key, language_code)
     if not deleted:
         raise HTTPException(status_code=404, detail="Translation not found")
     
     return MessageResponse(
-        message=f"Translation {key} for language {language_id} deleted successfully",
+        message=f"Translation {key} for language {language_code} deleted successfully",
         success=True
     )

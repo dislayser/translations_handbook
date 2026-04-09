@@ -8,7 +8,7 @@ class LanguageResponse(BaseModel):
 class TranslationResponse(BaseModel):
     key: str
     value: str
-    language_id: str
+    language_code: str
 
 class TranslationsByLanguage(BaseModel):
     language_code: str
